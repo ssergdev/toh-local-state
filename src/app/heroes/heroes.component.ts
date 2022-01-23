@@ -17,7 +17,7 @@ export class HeroesComponent implements OnInit {
   }
 
   getHeroes(): void {
-    this.heroState.getHeroesList();
+    this.heroState.getHeroes();
   }
 
   add(name: string): void {

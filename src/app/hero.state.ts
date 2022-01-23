@@ -1,76 +1,48 @@
 import { Injectable } from '@angular/core';
-import { RxState } from '@rx-angular/state';
-import { Subject } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { insert, remove, RxState, update } from '@rx-angular/state';
+import { of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { HeroStateModel } from './hero-state-model';
 import { HeroService } from './hero.service';
 import { Hero } from './hero';
+import { autoConnect } from './core/local.state';
 
 @Injectable()
 export class HeroState extends RxState<HeroStateModel> {
   heroes$ = this.select('heroes');
-  selectedHero$ = this.select('selectedHero');
+  selectedHero$ = this.select('hero');
   topHeroes$ = this.heroes$.pipe(map((heroes) => heroes?.slice(1, 5)));
-
-  private getHeroesList$ = new Subject();
-  private getHero$ = new Subject<number>();
-  private addHero$ = new Subject<Hero>();
-  private deleteHero$ = new Subject<Hero>();
-  private updateHero$ = new Subject<Hero>();
 
   constructor(private heroService: HeroService) {
     super();
-
-    this.connect('heroes', this.getHeroesList$.pipe(switchMap(() => this.heroService.getHeroes())));
-
-    this.connect(
-      'selectedHero',
-      this.getHero$.pipe(switchMap((id) => this.heroService.getHero(id)))
-    );
-
-    this.connect(
-      'heroes',
-      this.addHero$.pipe(switchMap((hero) => this.heroService.addHero(hero))),
-      ({ heroes }, hero) => [...(heroes || []), hero]
-    );
-
-    this.connect(
-      'heroes',
-      this.deleteHero$.pipe(switchMap((hero) => this.heroService.deleteHero(hero))),
-      ({ heroes }, hero) => heroes?.filter((h) => h !== hero)
-    );
-
-    this.connect(
-      'heroes',
-      this.updateHero$.pipe(switchMap((hero) => this.heroService.updateHero(hero))),
-      ({ heroes }, hero) => heroes?.map((h) => (h.id === hero.id ? hero : h))
-    );
   }
 
-  getHeroesList(): void {
-    this.getHeroesList$.next();
-  }
+  getHeroes = autoConnect(this, () => {
+    return this.heroService.getHeroes().pipe(map((heroes) => ({ heroes })));
+  });
 
-  getHero(id: number): void {
+  getHero = autoConnect(this, (id: number) => {
     const heroes = this.get('heroes');
     const hero = heroes?.find((h) => h.id === id);
-    if (hero) {
-      this.set({ selectedHero: hero });
-      return;
-    }
-    this.getHero$.next(id);
-  }
+    return hero ? of({ hero }) : this.heroService.getHero(id).pipe(map((h) => ({ hero: h })));
+  });
 
-  addHero(hero: Hero): void {
-    this.addHero$.next(hero);
-  }
+  addHero = autoConnect(this, (hero: Hero) => {
+    return this.heroService
+      .addHero(hero)
+      .pipe(map(() => ({ heroes: insert(this.get('heroes'), hero) })));
+  });
 
-  deleteHero(hero: Hero): void {
-    this.deleteHero$.next(hero);
-  }
+  deleteHero = autoConnect(this, (hero: Hero) => {
+    return this.heroService
+      .deleteHero(hero)
+      .pipe(map(() => ({ heroes: remove(this.get('heroes'), hero) })));
+  });
 
-  updateHero(hero: Hero): void {
-    this.updateHero$.next(hero);
-  }
+  updateHero = autoConnect(this, (hero: Hero) => {
+    return this.heroService
+      .updateHero(hero)
+      .pipe(map(() => ({ heroes: update(this.get('heroes'), hero) })));
+  });
 }

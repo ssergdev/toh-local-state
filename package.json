@@ -24,6 +24,7 @@
     "@rx-angular/state": "^1.4.3",
     "angular-in-memory-web-api": "~0.11.0",
     "prettier": "^2.3.2",
+    "reflect-metadata": "^0.1.13",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.4"

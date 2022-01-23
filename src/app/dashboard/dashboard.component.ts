@@ -15,6 +15,6 @@ export class DashboardComponent implements OnInit {
   }
 
   getHeroes(): void {
-    this.heroState.getHeroesList();
+    this.heroState.getHeroes();
   }
 }
