@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { Hero } from './hero';
+import { HeroInterface } from './hero.interface';
 import { MessageService } from './message.service';
 
 @Injectable({ providedIn: 'root' })
@@ -21,32 +21,32 @@ export class HeroService {
   ) {}
 
   /** GET heroes from the server */
-  getHeroes(): Observable<Hero[]> {
-    return this.http.get<Hero[]>(this.heroesUrl).pipe(
+  getHeroes(): Observable<HeroInterface[]> {
+    return this.http.get<HeroInterface[]>(this.heroesUrl).pipe(
       tap((_) => this.log('fetched heroes')),
-      catchError(this.handleError<Hero[]>('getHeroes', []))
+      catchError(this.handleError<HeroInterface[]>('getHeroes', []))
     );
   }
 
   /** GET hero by id. Return `undefined` when id not found */
-  getHeroNo404<Data>(id: number): Observable<Hero> {
+  getHeroNo404<Data>(id: number): Observable<HeroInterface> {
     const url = `${this.heroesUrl}/?id=${id}`;
-    return this.http.get<Hero[]>(url).pipe(
+    return this.http.get<HeroInterface[]>(url).pipe(
       map((heroes) => heroes[0]), // returns a {0|1} element array
       tap((h) => {
         const outcome = h ? `fetched` : `did not find`;
         this.log(`${outcome} hero id=${id}`);
       }),
-      catchError(this.handleError<Hero>(`getHero id=${id}`))
+      catchError(this.handleError<HeroInterface>(`getHero id=${id}`))
     );
   }
 
   /** GET hero by id. Will 404 if id not found */
-  getHero(id: number): Observable<Hero> {
+  getHero(id: number): Observable<HeroInterface> {
     const url = `${this.heroesUrl}/${id}`;
-    return this.http.get<Hero>(url).pipe(
+    return this.http.get<HeroInterface>(url).pipe(
       tap((_) => this.log(`fetched hero id=${id}`)),
-      catchError(this.handleError<Hero>(`getHero id=${id}`))
+      catchError(this.handleError<HeroInterface>(`getHero id=${id}`))
     );
   }
 
@@ -54,27 +54,27 @@ export class HeroService {
   //////// Save methods //////////
 
   /** POST: add a new hero to the server */
-  addHero(hero: Hero): Observable<Hero> {
-    return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe(
-      tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
+  addHero(hero: HeroInterface): Observable<HeroInterface> {
+    return this.http.post<HeroInterface>(this.heroesUrl, hero, this.httpOptions).pipe(
+      tap((newHero: HeroInterface) => this.log(`added hero w/ id=${newHero.id}`)),
       map(() => hero),
-      catchError(this.handleError<Hero>('addHero'))
+      catchError(this.handleError<HeroInterface>('addHero'))
     );
   }
 
   /** DELETE: delete the hero from the server */
-  deleteHero(hero: Hero): Observable<Hero> {
+  deleteHero(hero: HeroInterface): Observable<HeroInterface> {
     const url = `${this.heroesUrl}/${hero.id}`;
 
-    return this.http.delete<Hero>(url, this.httpOptions).pipe(
+    return this.http.delete<HeroInterface>(url, this.httpOptions).pipe(
       tap((_) => this.log(`deleted hero id=${hero.id}`)),
       map(() => hero),
-      catchError(this.handleError<Hero>('deleteHero'))
+      catchError(this.handleError<HeroInterface>('deleteHero'))
     );
   }
 
   /** PUT: update the hero on the server */
-  updateHero(hero: Hero): Observable<any> {
+  updateHero(hero: HeroInterface): Observable<any> {
     return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
       tap((_) => this.log(`updated hero id=${hero.id}`)),
       map(() => hero),

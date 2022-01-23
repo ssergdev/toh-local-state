@@ -3,13 +3,13 @@ import { insert, remove, RxState, update } from '@rx-angular/state';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { HeroStateModel } from './hero-state-model';
-import { HeroService } from './hero.service';
-import { Hero } from './hero';
 import { autoConnect } from './core/local.state';
+import { HeroStateInterface } from './hero-state.interface';
+import { HeroService } from './hero.service';
+import { HeroInterface } from './hero.interface';
 
 @Injectable()
-export class HeroState extends RxState<HeroStateModel> {
+export class HeroState extends RxState<HeroStateInterface> {
   heroes$ = this.select('heroes');
   selectedHero$ = this.select('hero');
   topHeroes$ = this.heroes$.pipe(map((heroes) => heroes?.slice(1, 5)));
@@ -28,19 +28,19 @@ export class HeroState extends RxState<HeroStateModel> {
     return hero ? of({ hero }) : this.heroService.getHero(id).pipe(map((h) => ({ hero: h })));
   });
 
-  addHero = autoConnect(this, (hero: Hero) => {
+  addHero = autoConnect(this, (hero: HeroInterface) => {
     return this.heroService
       .addHero(hero)
       .pipe(map(() => ({ heroes: insert(this.get('heroes'), hero) })));
   });
 
-  deleteHero = autoConnect(this, (hero: Hero) => {
+  deleteHero = autoConnect(this, (hero: HeroInterface) => {
     return this.heroService
       .deleteHero(hero)
       .pipe(map(() => ({ heroes: remove(this.get('heroes'), hero) })));
   });
 
-  updateHero = autoConnect(this, (hero: Hero) => {
+  updateHero = autoConnect(this, (hero: HeroInterface) => {
     return this.heroService
       .updateHero(hero)
       .pipe(map(() => ({ heroes: update(this.get('heroes'), hero) })));

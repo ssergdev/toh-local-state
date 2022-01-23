@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { Hero } from '../hero';
+import { HeroInterface } from '../hero.interface';
 import { HeroState } from '../hero.state';
 
 @Component({
@@ -26,7 +26,7 @@ export class HeroDetailComponent {
     this.location.back();
   }
 
-  save(hero: Hero): void {
+  save(hero: HeroInterface): void {
     this.heroState.updateHero(hero);
     this.location.back();
   }

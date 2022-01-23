@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Hero } from '../hero';
+import { HeroInterface } from '../hero.interface';
 import { HeroState } from '../hero.state';
 
 @Component({
@@ -21,10 +21,10 @@ export class HeroesComponent implements OnInit {
   }
 
   add(name: string): void {
-    this.heroState.addHero({ name } as Hero);
+    this.heroState.addHero({ name } as HeroInterface);
   }
 
-  delete(hero: Hero): void {
+  delete(hero: HeroInterface): void {
     this.heroState.deleteHero(hero);
   }
 }
